@@ -9,6 +9,7 @@ public class HelloController {
 	@GetMapping("/hello")
 	@ResponseBody
 	public String hello() {
-		return "Hello sex World";
+		return "Hello 21312312";
 	}
+
 }
