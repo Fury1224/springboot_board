@@ -1,7 +1,9 @@
 package com.mysite.sbb;
 
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 public class SbbApplication {
@@ -10,4 +12,22 @@ public class SbbApplication {
 		SpringApplication.run(SbbApplication.class, args);
 	}
 
+	private final CategoryService categoryService;
+	
+	public SbbApplication(CategoryService categoryService) {
+	    this.categoryService = categoryService;
+	}
+
+	@Bean
+	CommandLineRunner initCategories() {
+	    return args -> {
+	        if (categoryService.getAllCategories().isEmpty()) { // 기존 카테고리가 없을 경우에만 추가
+	        categoryService.createCategory("자유게시판");
+	        categoryService.createCategory("질문게시판");
+	        }
+	    };
+	}
+
 }
+
+
