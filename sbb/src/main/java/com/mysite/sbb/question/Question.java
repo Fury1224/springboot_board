@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
+import com.mysite.sbb.Category;
 import com.mysite.sbb.answer.Answer;
 import com.mysite.sbb.user.SiteUser;
 
@@ -42,8 +43,13 @@ public class Question {
 	private List<Answer> answerList; // 답변 리스트
 	
 	@ManyToOne
-	private SiteUser author;
+	private SiteUser author;	// 작성자
 	
 	@ManyToMany
-	Set<SiteUser> voter;	
+	Set<SiteUser> voter;	// 추천 기능
+	
+	private LocalDateTime modifyDate;	// 수정날짜정보
+	
+	@ManyToOne
+	private Category category;	// 카테고리 기능
 }
