@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.mysite.sbb.Category;
 import com.mysite.sbb.DataNotFoundException;
 import com.mysite.sbb.answer.Answer;
+import com.mysite.sbb.category.Category;
 import com.mysite.sbb.user.SiteUser;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -64,10 +64,11 @@ public class QuestionService {
 		
 	}
 	
-	public void modify(Question question, String subject, String content) {
+	public void modify(Question question, String subject, String content, Category category) {
 		question.setSubject(subject);
 		question.setContent(content);
 		question.setModifyDate(LocalDateTime.now());
+		question.setCategory(category);
 		this.questionRepository.save(question);
 	}
 	
@@ -89,4 +90,11 @@ public class QuestionService {
         };
     }
 
+	
+	public Page<Question> getCategoryQuestionList(Category category, int page) {
+        List<Sort.Order> sorts = new ArrayList<>();
+        sorts.add(Sort.Order.desc("createDate"));
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
+        return this.questionRepository.findByCategory(category, pageable);
+    }
 }

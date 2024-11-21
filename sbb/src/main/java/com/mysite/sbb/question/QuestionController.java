@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import com.mysite.sbb.Category;
-import com.mysite.sbb.CategoryService;
 import com.mysite.sbb.DataNotFoundException;
 import com.mysite.sbb.answer.Answer;
 import com.mysite.sbb.answer.AnswerForm;
 import com.mysite.sbb.answer.AnswerService;
+import com.mysite.sbb.category.Category;
+import com.mysite.sbb.category.CategoryService;
 import com.mysite.sbb.user.SiteUser;
 import com.mysite.sbb.user.UserService;
 
@@ -45,8 +45,10 @@ public class QuestionController {
 	public String list(Model model, @RequestParam(value="page", defaultValue="0") int page, 
 			@RequestParam(value = "kw", defaultValue = "") String kw) { // 검색 기능 추가
 		Page<Question> paging = this.questionService.getList(page, kw);
+		List<Category> categoryList = this.categoryService.getAll();
 		model.addAttribute("paging", paging); // questionList 라는 이름의 모델 객체에 값 questionList 저장
 		model.addAttribute("kw", kw); 
+		model.addAttribute("category_list", categoryList);	// 카테고리 추가
 		return "question_list";
 	}
 	
@@ -66,32 +68,30 @@ public class QuestionController {
 				 @RequestParam(value = "sort", defaultValue = "createDate") String sort) {
 			Question question = this.questionService.getQuestion(id);
 			Page<Answer> answerPaging =  this.answerService.getList(question, answerPage);
+			List<Category> categoryList = this.categoryService.getAll();
 			model.addAttribute("question", question);
 			model.addAttribute("answerPaging", answerPaging);
-
+			model.addAttribute("category_list", categoryList);	// 카테고리 추가
 			return "question_detail";
 		}
 	
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/create")
 	public String questionCreate(QuestionForm questionForm, Model model) {
-		List<Category> categories = this.categoryService.getAllCategories();
-		model.addAttribute("categories", categories);	// 카테고리 목록
+		List<Category> category_list = this.categoryService.getAll();
+		model.addAttribute("category_list", category_list);	// 카테고리 목록 보내기
 		return "question_form";
 	}
 
 	@PreAuthorize("isAuthenticated()")
 	@PostMapping("/create")
-	public String questionCreate(@Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal,
-			@RequestParam("categoryId") Integer categoryId) {
+	public String questionCreate(@Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal
+			) {
 		if (bindingResult.hasErrors()) {
 			return "question_form";
 		}
 		SiteUser siteUser = this.userService.getUser(principal.getName());
-		
-		Category category = this.categoryService.getCategoryById(categoryId).
-				orElseThrow(() -> new DataNotFoundException("Category not found"));
-		
+		Category category = this.categoryService.getCategoryByName(questionForm.getCategory());	// 카테고리 추가
 		this.questionService.create(questionForm.getSubject(), questionForm.getContent(), siteUser, category);
 		return "redirect:/question/list";
 	}
@@ -99,20 +99,24 @@ public class QuestionController {
 	
 	@PreAuthorize("isAuthenticated()")	// 인증된 사용자만
 	@GetMapping("/vote/{id}")	// 추천 기능
-	public String questionVote(Principal principal, @PathVariable("id") Integer id) {
+	public String questionVote(Principal principal, @PathVariable("id") Integer id, Model model) {
 		Question question = this.questionService.getQuestion(id);
 		SiteUser siteUser = this.userService.getUser(principal.getName());
+		List<Category> category_list = this.categoryService.getAll();	// 기존의 카테고리 넘겨주기
+		model.addAttribute("category_list", category_list);
 		this.questionService.vote(question, siteUser);
 		return String.format("redirect:/question/detail/%s", id);
 	}
 	
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/modify/{id}")	// 수정 버튼을 눌렀을 때
-	public String questionModify(QuestionForm questionForm, @PathVariable("id") Integer id, Principal principal) {
+	public String questionModify(QuestionForm questionForm, @PathVariable("id") Integer id, Principal principal, Model model) {
 		Question question = this.questionService.getQuestion(id);
 		if (!question.getAuthor().getUsername().equals(principal.getName())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
 		}
+		List<Category> categoryList = this.categoryService.getAll();	// 카테고리 전달
+        model.addAttribute("category_list", categoryList);
 		questionForm.setSubject(question.getSubject());
 		questionForm.setContent(question.getContent());
 		return "question_form";
@@ -126,10 +130,11 @@ public class QuestionController {
 			return "question_form";
 		}
 		Question question = this.questionService.getQuestion(id);
+		Category category = this.categoryService.getCategoryByName(questionForm.getCategory());	// 카테고리 수정
 		if (!question.getAuthor().getUsername().equals(principal.getName())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
 		}
-		this.questionService.modify(question, questionForm.getSubject(), questionForm.getContent());
+		this.questionService.modify(question, questionForm.getSubject(), questionForm.getContent(), category);
 		return String.format("redirect:/question/detail/%s", id);
 	}
 }
