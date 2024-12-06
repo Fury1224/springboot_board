@@ -76,7 +76,7 @@ public class UserController {
 	// 프로필 화면
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/profile")
-	public String profile(Model model, Principal principal) {
+	public String profile(Model model, Principal principal, UserUpdateForm userUpdateForm) {
 		String username = principal.getName();
 		List<Category> categoryList = this.categoryService.getAll();
 		model.addAttribute("username", username);
@@ -87,5 +87,37 @@ public class UserController {
 		return "profile";
 	}
 
+
+	 @PreAuthorize("isAuthenticated()")
+	    @PostMapping("/profile")
+	    public String update(@Valid UserUpdateForm userUpdateForm, BindingResult bindingResult,
+	                         Model model, Principal principal) {
+	        SiteUser siteUser = this.userService.getUser(principal.getName());
+
+	        model.addAttribute("username", siteUser.getUsername());
+	        model.addAttribute("userEmail", siteUser.getEmail());
+	        if (bindingResult.hasErrors()) {
+	            return "profile";
+	        }
+
+	        if(!this.userService.isMatch(userUpdateForm.getOriginPassword(), siteUser.getPassword())) {
+	            bindingResult.rejectValue("originPassword", "passwordInCorrect",
+	                    "기존 패스워드가 일치하지 않습니다.");
+	            return "profile";
+	        }
+	        if(!userUpdateForm.getPassword1().equals(userUpdateForm.getPassword2())) {
+	            bindingResult.rejectValue("password2", "passwordInCorrect",
+	                    "확인 패스워드가 일치하지 않습니다.");
+	            return "profile";
+	        }
+
+	        try {
+	            userService.update(siteUser, userUpdateForm.getPassword1());
+	        } catch(Exception e) {
+	            e.printStackTrace();
+	            bindingResult.reject("updateFailed", e.getMessage());
+	        }
+	        return "profile";
+	    }
 
 }

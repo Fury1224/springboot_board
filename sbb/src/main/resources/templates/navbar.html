@@ -28,7 +28,7 @@
         <thead>
             <tr class="text-center">
 				<th>
-					<a class="nav-link" href="/">전체</a>
+					<a class="nav-link" href="/question/list">전체 글</a>
 				</th>
                 <th th:each="category, loop : ${category_list}">
                     <a class="nav-link" th:href="|/category/${category.name}|" th:text="${category.name}"></a>

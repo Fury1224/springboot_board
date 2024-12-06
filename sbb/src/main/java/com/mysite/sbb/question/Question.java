@@ -56,4 +56,18 @@ public class Question {
 	
 	@OneToMany(mappedBy = "question", cascade = CascadeType.REMOVE)
 	private List<Comment> commentList;	// 댓글 기능
+	
+	@Column(nullable = false, columnDefinition = "int default 0")
+	private int viewCount;	// 조회수
+	
+	@Column(name = "is_popular", nullable = false, columnDefinition = "boolean default false")
+	private boolean isPopular = false;	// 조회수에 따른 인기 게시물
+	public boolean isPopular() {
+		return isPopular;
+	}
+	public void setPopular(boolean popular) {
+		isPopular = popular;
+	}
+
+
 }
