@@ -62,4 +62,9 @@ public class AnswerService {
 	    	return this.answerRepository.findAllByQuestion(question, pageable);
 	   }
 
+	public List<Answer> getCurrentListByUser(String username, int num) {
+		Pageable pageable = PageRequest.of(0, num);
+		return answerRepository.findCurrentAnswer(username, pageable);
+	}
+
 }

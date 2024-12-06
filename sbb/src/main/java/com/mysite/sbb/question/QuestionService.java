@@ -90,11 +90,16 @@ public class QuestionService {
         };
     }
 
-	
 	public Page<Question> getCategoryQuestionList(Category category, int page) {
         List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(Sort.Order.desc("createDate"));
         Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
         return this.questionRepository.findByCategory(category, pageable);
     }
+	
+	public List<Question> getCurrentListByUser(String username, int num) {
+		Pageable pageable = PageRequest.of(0, num);
+		return questionRepository.findCurrentQuestion(username, pageable);
+	}
+
 }
