@@ -24,6 +24,9 @@ import com.mysite.sbb.answer.AnswerForm;
 import com.mysite.sbb.answer.AnswerService;
 import com.mysite.sbb.category.Category;
 import com.mysite.sbb.category.CategoryService;
+import com.mysite.sbb.comment.Comment;
+import com.mysite.sbb.comment.CommentForm;
+import com.mysite.sbb.comment.CommentService;
 import com.mysite.sbb.user.SiteUser;
 import com.mysite.sbb.user.UserService;
 
@@ -40,6 +43,7 @@ public class QuestionController {
 	private final QuestionService questionService;
 	private final UserService userService;
 	private final AnswerService answerService;
+	private final CommentService commentService;
 	
 	@GetMapping("/list")	// 질문 목록
 	public String list(Model model, @RequestParam(value="page", defaultValue="0") int page, 
@@ -62,18 +66,21 @@ public class QuestionController {
 	*/
 	
 	// 질문 상세보기 + 페이징 기능으로 넘어온 요청 처리
-		@GetMapping(value = "/detail/{id}")
-		public String detail(Model model, @PathVariable("id") Integer id, AnswerForm answerForm, 
-				 @RequestParam(value = "answerPage", defaultValue = "0") int answerPage,
-				 @RequestParam(value = "sort", defaultValue = "createDate") String sort) {
-			Question question = this.questionService.getQuestion(id);
-			Page<Answer> answerPaging =  this.answerService.getList(question, answerPage);
-			List<Category> categoryList = this.categoryService.getAll();
-			model.addAttribute("question", question);
-			model.addAttribute("answerPaging", answerPaging);
-			model.addAttribute("category_list", categoryList);	// 카테고리 추가
-			return "question_detail";
-		}
+	@GetMapping(value = "/detail/{id}")
+	public String detail(Model model, @PathVariable("id") Integer id, AnswerForm answerForm, 
+			 @RequestParam(value = "answerPage", defaultValue = "0") int answerPage,
+			 @RequestParam(value = "sort", defaultValue = "createDate") String sort) {
+		Question question = this.questionService.getQuestion(id);
+		Page<Answer> answerPaging =  this.answerService.getList(question, answerPage);
+		List<Category> categoryList = this.categoryService.getAll();
+		List<Comment> commentList = this.commentService.getCommentList(question);
+		model.addAttribute("question", question);
+		model.addAttribute("answerPaging", answerPaging);
+		model.addAttribute("category_list", categoryList);	// 카테고리 추가
+		model.addAttribute("commentList", commentList);	// 댓글 추가
+		model.addAttribute("commentForm", new CommentForm());	// 댓글 작성 폼
+		return "question_detail";
+	}
 	
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/create")

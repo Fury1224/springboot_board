@@ -6,6 +6,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.mysite.sbb.category.Category;
 
@@ -17,4 +19,13 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
 	Page<Question> findAll(Pageable pageable);
 	Page<Question> findAll(Specification<Question> spec, Pageable pageable); // 검색 기능
 	Page<Question> findByCategory(Category category, Pageable pageable);	// 카테고리
+	
+	// 프로필 구성에 필요한 쿼리
+	@Query("select q "
+		+ "from Question q "
+		+ "join SiteUser u on q.author=u "
+		+ "where u.username = :username "
+		+ "order by q.createDate desc ")
+		List<Question> findCurrentQuestion(@Param("username") String username, Pageable pageable);
+
 }

@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.mysite.sbb.answer.Answer;
 import com.mysite.sbb.category.Category;
+import com.mysite.sbb.comment.Comment;
 import com.mysite.sbb.user.SiteUser;
 
 import jakarta.persistence.CascadeType;
@@ -52,4 +53,7 @@ public class Question {
 	
 	@ManyToOne
 	private Category category;	// 카테고리 기능
+	
+	@OneToMany(mappedBy = "question", cascade = CascadeType.REMOVE)
+	private List<Comment> commentList;	// 댓글 기능
 }

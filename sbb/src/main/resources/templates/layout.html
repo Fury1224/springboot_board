@@ -5,7 +5,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<link rel="stylesheet" type="text/css" th:href="@{/style.css}">
 	<link rel="stylesheet" type="text/css" th:href="@{/bootstrap.min.css}">
-	<title>안녕</title>	
+	<title>안녕</title>
+	<!-- simpleMDE CSS 추가-->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
 </head>
 
 <body>
@@ -14,5 +16,21 @@
 	<th:block layout:fragment="content"></th:block>
 	<th:block layout:fragment="script"></th:block>
 	<script th:src="@{/bootstrap.min.js}"></script>
+	<!--simpleMDE JS 추가-->
+	<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+	<!-- simpleMDE 초기화-->
+	<script>
+	document.addEventListener("DOMContentLoaded", function(){
+		var editorIds = ['markdownEditorQuestion','markdownEditorAnswer','markdownEditorAnswerEnabled']
+		editorIds.forEach(function(editorId){
+			var textareaElement = document.getElementById(editorId);
+			if(textareaElement){
+				new SimpleMDE({element : textareaElement });
+			}
+		});
+	});
+	</script>
+
 </body>
+
 </html>
