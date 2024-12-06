@@ -33,4 +33,17 @@ public class UserService {
 			throw new DataNotFoundException("site user not exist");
 		}
 	}
+	
+	public SiteUser update(SiteUser user, String newPassword) {
+		user.setPassword(this.passwordEncoder.encode(newPassword));
+		this.userRepository.save(user);
+		return user;
+	 }
+
+	public boolean isMatch(String rawPassword, String encodedPassword) {
+		return this.passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+
+	    
+	    
 }

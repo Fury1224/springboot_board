@@ -74,6 +74,7 @@ public class QuestionController {
 		Page<Answer> answerPaging =  this.answerService.getList(question, answerPage);
 		List<Category> categoryList = this.categoryService.getAll();
 		List<Comment> commentList = this.commentService.getCommentList(question);
+		questionService.increaseViewCountAndUpdatePopular(id);	// 조회수 증가, 인기글 갱신
 		model.addAttribute("question", question);
 		model.addAttribute("answerPaging", answerPaging);
 		model.addAttribute("category_list", categoryList);	// 카테고리 추가

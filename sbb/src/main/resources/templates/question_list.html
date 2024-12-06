@@ -4,9 +4,6 @@
 <!--layout.html의 layout:fragment="content" 영역에 해당 내용들을 집어넣겠다-->
 <div layout:fragment="content" class="container my-3">
 
-	<h2> hi </h2>
-	<hr>	
-	
 	<div class="row my-3">
         <div class="col-6">
             <a th:href="@{/question/create}" class="btn btn-outline-danger">질문 등록하기</a>
@@ -30,6 +27,7 @@
 				<th>글쓴이</th>
 				<th>카테고리</th>
 				<th>작성일시</th>
+				<th>조회수</th>
 			</tr>		
 		</thead>
 		<tbody>
@@ -43,6 +41,10 @@
 						th:if="${#lists.size(question.answerList) > 0}"
 						th:text="${#lists.size(question.answerList)}">
 					</span>
+
+					<!--인기 게시글 이미지 설정-->
+					<img th:if="${question.isPopular}" src="/images/popular_post.png" alt="인기 게시글" style="width: 20px; height: 20px; margin-left: 5px;">
+
 				</td>
 				<td><span th:if="${question.author != null}" th:text="${question.author.username}"></span></td>
 				
@@ -50,6 +52,10 @@
 				<td th:text="${question.category != null ? question.category.name : '없음'}"></td>
 				
 				<td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm:ss')}"></td>
+				
+				<!--조회수 추가-->				
+				<td th:text="${question.viewCount}"></td>
+
 			</tr>
 		</tbody>
 	</table>	

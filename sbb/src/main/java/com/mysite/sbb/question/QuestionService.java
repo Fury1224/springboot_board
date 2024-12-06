@@ -23,6 +23,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -100,6 +102,54 @@ public class QuestionService {
 	public List<Question> getCurrentListByUser(String username, int num) {
 		Pageable pageable = PageRequest.of(0, num);
 		return questionRepository.findCurrentQuestion(username, pageable);
+	}
+
+	public List<Question> getRecentQuestions(int limit) {
+		return this.questionRepository.findAll(PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createDate"))).getContent();
+	}
+	
+	@Transactional
+	public void incrementViewCount(Integer questionId) {
+	Question question = questionRepository.findById(questionId).orElseThrow(() ->
+	new IllegalArgumentException("해당 질문이 없습니다. ID: " + questionId));
+	question.setViewCount(question.getViewCount() + 1);
+	}
+
+
+	// 조회수 증가 및 인기 게시글 갱신
+	public void increaseViewCountAndUpdatePopular(Integer questionId) {
+		Optional<Question> optionalQuestion = questionRepository.findById(questionId);
+		if (optionalQuestion.isPresent()) {
+			Question currentQuestion = optionalQuestion.get();
+			currentQuestion.setViewCount(currentQuestion.getViewCount() + 1); // 조회수 증가
+			questionRepository.save(currentQuestion); // 저장
+			// 인기 게시글 갱신
+			updatePopularQuestion();
+		} 
+		else {
+			throw new IllegalArgumentException("해당 ID의 질문을 찾을 수 없습니다: " + questionId);
+		}
+	}
+	
+	// 인기 게시글 갱신
+	private void updatePopularQuestion() {
+		// 가장 조회수가 높은 게시글 찾기
+		List<Question> allQuestions = questionRepository.findAll(Sort.by(Sort.Direction.DESC, "viewCount"));
+		if (!allQuestions.isEmpty()) {
+			Question topQuestion = allQuestions.get(0); // 조회수 1위 게시글
+			// 기존 인기 게시글 상태 초기화
+			questionRepository.findAll().forEach(question -> {
+				if (question.isPopular() && !question.equals(topQuestion)) {
+					question.setPopular(false); // 기존 인기 게시글에서 제거
+					questionRepository.save(question);
+				}
+			});
+			// 새 인기 게시글로 설정
+			if (!topQuestion.isPopular()) {
+				topQuestion.setPopular(true);
+				questionRepository.save(topQuestion);
+			}
+		}
 	}
 
 }
