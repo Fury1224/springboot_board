@@ -54,6 +54,10 @@ public class AnswerService {
 		this.answerRepository.save(answer);
 	}
 	
+	public void delete(Answer answer) {
+		this.answerRepository.delete(answer);
+	}
+	
 	public Page<Answer> getList(Question question, int page) {
 		List<Sort.Order> sorts = new ArrayList<>();
 		sorts.add(Sort.Order.desc("voter")); 

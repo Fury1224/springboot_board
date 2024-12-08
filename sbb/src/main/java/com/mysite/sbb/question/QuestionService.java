@@ -74,6 +74,10 @@ public class QuestionService {
 		this.questionRepository.save(question);
 	}
 	
+	public void delete(Question question) {
+		this.questionRepository.delete(question);
+	}
+	
 	private Specification<Question> search(String kw) {
         return new Specification<>() {
             private static final long serialVersionUID = 1L;
