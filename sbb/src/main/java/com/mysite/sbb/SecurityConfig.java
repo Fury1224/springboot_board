@@ -33,7 +33,10 @@ public class SecurityConfig {
 			.authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
 					.requestMatchers(new AntPathRequestMatcher("/**")).permitAll())
 			.csrf((csrf) -> csrf
-					.ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**")))
+					.ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**"))
+					
+					// /image/upload 경로에 대해 CSRF 보호 비활성화
+					.ignoringRequestMatchers(new AntPathRequestMatcher("/image/upload")))  
 			.headers((headers) -> headers
 					.addHeaderWriter(new XFrameOptionsHeaderWriter(
 							XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))

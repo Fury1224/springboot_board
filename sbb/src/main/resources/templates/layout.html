@@ -6,8 +6,12 @@
 	<link rel="stylesheet" type="text/css" th:href="@{/style.css}">
 	<link rel="stylesheet" type="text/css" th:href="@{/bootstrap.min.css}">
 	<title>안녕</title>
-	<!-- simpleMDE CSS 추가-->
+	<!-- simpleMDE CSS 추가
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+	-->
+	<!--CKEditor 5
+	<link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/44.0.0/ckeditor5.css">
+	<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/translations/ko.js"></script>-->
 </head>
 
 <body>
@@ -16,10 +20,57 @@
 	<th:block layout:fragment="content"></th:block>
 	<th:block layout:fragment="script"></th:block>
 	<script th:src="@{/bootstrap.min.js}"></script>
-	<!--simpleMDE JS 추가-->
+	<!--simpleMDE JS 추가
 	<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
-	<!-- simpleMDE 초기화-->
-	<script>/*
+	-->
+	
+	<!-- simpleMDE 초기화
+		<script>
+			document.addEventListener("DOMContentLoaded", function(){
+				var editorIds = ['markdownEditorQuestion','markdownEditorAnswer','markdownEditorAnswerEnabled']
+				editorIds.forEach(function(editorId){
+					var textareaElement = document.getElementById(editorId);
+					if(textareaElement){
+						new SimpleMDE({element : textareaElement });
+					}
+				});
+			});
+		</script>
+		-->
+		
+	<!--CKEditor 5 JS-->
+
+	<script src="https://cdn.ckeditor.com/ckeditor5/12.4.0/classic/ckeditor.js"></script>
+	<script src="https://ckeditor.com/apps/ckfinder/3.5.0/ckfinder.js"></script>
+	
+	<!--CKEdtion 5 초기화-->
+	<script>
+	    let myEditor;
+	    ClassicEditor
+	        .create(document.querySelector("#editor"), {
+	            removePlugins: ['MediaEmbed'],
+	            ckfinder: {
+	                uploadUrl: '/image/upload',
+	                headers: {
+	                    'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value  // CSRF 토큰을 헤더에 추가
+	                }
+	            }
+	        })
+	        .then(editor => {
+	            myEditor = editor;
+	            console.log('Editor was initialized');
+	        })
+	        .catch(error => {
+	            console.log(error);
+	        });
+	</script>
+
+
+</body>
+
+</html>
+
+/*
 		document.addEventListener("DOMContentLoaded", function() {
 		    var editorIds = ['markdownEditorQuestion'];
 		    editorIds.forEach(function(editorId) {
@@ -80,19 +131,3 @@
 		        }
 		    });
 		});*/
-
-		
-		document.addEventListener("DOMContentLoaded", function(){
-			var editorIds = ['markdownEditorQuestion','markdownEditorAnswer','markdownEditorAnswerEnabled']
-			editorIds.forEach(function(editorId){
-				var textareaElement = document.getElementById(editorId);
-				if(textareaElement){
-					new SimpleMDE({element : textareaElement });
-				}
-			});
-		});
-	</script>
-
-</body>
-
-</html>

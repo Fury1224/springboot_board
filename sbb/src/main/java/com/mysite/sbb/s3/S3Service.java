@@ -33,19 +33,17 @@ public class S3Service {
 	
 	private S3Config s3Config;
 	
+	@Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+	
+	
 	@Autowired
 	public S3Service(S3Config s3Config) {
         this.s3Config = s3Config;
     }
 	
-    /**
-     * S3에 이미지 업로드 하기
-     */
 	
-	@Value("${cloud.aws.s3.bucket}")
-    private String bucket;
-	
-	private String localLocation = "/images/";
+	private String localLocation = "C:\\Users\\my\\";
 	
     public String uploadImage(MultipartRequest request) throws IOException {
         // request 에서 이미지 추출
@@ -76,4 +74,5 @@ public class S3Service {
         return s3Url;
         
     }
+    
 }
