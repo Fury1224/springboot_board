@@ -145,4 +145,5 @@ public class QuestionController {
 		this.questionService.modify(question, questionForm.getSubject(), questionForm.getContent(), category);
 		return String.format("redirect:/question/detail/%s", id);
 	}
+	
 }
