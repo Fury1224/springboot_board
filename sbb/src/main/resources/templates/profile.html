@@ -12,10 +12,26 @@
 						     style="width: 150px; height: 150px;" />
 
                         <h5 class="my-3" th:text="${username}"></h5>
+						
+						<!--프로필 사진 변경 버튼-->
 						<form id="uploadForm">
-						    <input type="file" name="file" id="fileInput">
-						    <button type="submit">사진 변경</button>
+						    <input type="file" name="file" id="fileInput" style="display: none;">
+						    <button type="button" id="fileSelectButton">사진 변경</button>
 						</form>
+						
+						<!-- 프로필 사진을 자를 수 있는 모달 창 -->
+                        <div id="cropModal" class="modal" style="display: none;">
+                            <div class="modal-content">
+								<h1>프로필 사진 자르기</h1>
+                                
+                                <img id="imageToCrop" style="max-width: 100%;" />
+								<div>
+									<button id="cropButton">사진 변경</button>
+									<button id="closeButton">취소</button>
+								</div>
+                            </div>
+                        </div>
+												
                     </div>
                 </div>
             </div>
@@ -111,6 +127,92 @@
 </div>
 
 <script layout:fragment="script" type="text/javascript">
+	// 버튼 클릭 시 숨겨진 파일 선택 창 열기
+    document.getElementById('fileSelectButton').addEventListener('click', () => {
+        const fileInput = document.getElementById('fileInput');
+        fileInput.click(); // 파일 선택 창 열기
+    });
+		
+    let cropper;
+    const imageElement = document.getElementById('imageToCrop');
+    const profileImage = document.getElementById('profileImage');  // profileImage 요소 확인
+    const uploadImage = document.getElementById('fileInput');
+    const cropModal = document.getElementById('cropModal');
+    const closeModalButton = document.getElementById('closeButton');
+    const cropButton = document.getElementById('cropButton');
+
+    // 이미지 업로드 시 처리
+    uploadImage.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imageElement.src = e.target.result;
+                cropModal.style.display = 'block'; // 모달을 표시
+                if (cropper) {
+                    cropper.destroy();  // 기존 cropper 인스턴스를 제거
+                }
+                cropper = new Cropper(imageElement, {
+                    aspectRatio: 1,  // 원형으로 자르려면 정사각형 비율을 맞추기
+                    viewMode: 1,
+                    autoCropArea: 0.5,
+                    responsive: true,
+                    cropBoxResizable: false,
+					
+                });
+
+				imageElement.style.objectFit = 'contain';  // 비율을 유지하면서 크기 조정
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // 모달 창 닫기
+    closeModalButton.addEventListener('click', () => {
+        cropModal.style.display = 'none'; // 모달 숨기기
+    });
+
+    // 자른 이미지 처리
+    cropButton.addEventListener('click', async () => {
+        if (cropper) {
+            const croppedCanvas = cropper.getCroppedCanvas();
+
+            // Blob 객체로 변환하고 원본 파일명 유지
+            croppedCanvas.toBlob(async function(blob) {
+                const fileInput = document.getElementById('fileInput');
+                const fileName = fileInput.files[0].name;  // 업로드된 파일의 원본 이름 가져오기
+
+                const formData = new FormData();
+                formData.append('file', blob, fileName);  // Blob을 파일명 그대로 전송
+
+				// 서버에서 전달된 userId를 Thymeleaf 구문으로 JavaScript에 삽입
+                const userId = /*[[${userId}]]*/ 1; 
+
+                try {
+                    const response = await fetch(`/user/${userId}/uploadProfileImage`, {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        alert("프로필 사진이 변경되었습니다");
+                        cropModal.style.display = 'none'; // 자르기 후 모달 닫기
+                        location.reload(); // 페이지 새로고침
+                    } else {
+                        alert("이미지 업로드에 실패했습니다");
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert("서버와 통신 오류가 발생했습니다.");
+                }
+            }, 'image/jpeg');  // 'image/jpeg'로 Blob 형식을 설정
+        }
+    });
+</script>
+
+
+<!--script layout:fragment="script" type="text/javascript">
     document.getElementById('uploadForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const fileInput = document.getElementById('fileInput');
@@ -118,7 +220,7 @@
         formData.append("file", fileInput.files[0]);
 
         // 서버에서 전달된 userId를 Thymeleaf 구문으로 JavaScript에 삽입
-        const userId = /*[[${userId}]]*/ 1; // 서버에서 전달된 userId가 정상적으로 출력되는지 확인
+        const userId = /*[[${userId}]]*/ 1; // 
 
         const response = await fetch(`/user/${userId}/uploadProfileImage`, {
             method: "POST",
@@ -135,7 +237,7 @@
             alert("이미지 업로드에 실패했습니다");
         }
     });
-</script>
+</script-->
 
 
 </html>
