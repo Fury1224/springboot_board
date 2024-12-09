@@ -33,4 +33,8 @@ public class SiteUser {
     private String provider;
     
     private Long socialId;
+    
+    @Column(nullable = false)
+    private String profileImageUrl = "https://fury-spring.s3.ap-southeast-2.amazonaws.com/default_user.jpg";
+
 }

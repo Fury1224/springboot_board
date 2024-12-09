@@ -42,12 +42,21 @@ public class S3Service {
         this.s3Config = s3Config;
     }
 	
+	// 글 작성 시 사용되는 메서드 (CKEditor를 통해 이미지를 받아와야 하기 때문에 MultipartRequest 사용)
+	public String uploadImage(MultipartRequest request) throws IOException {
+		// request 에서 이미지 추출
+        MultipartFile file = request.getFile("upload");
+        return uploadFileToS3(file);
+    }
+	
+	// 프로필에 이미지 업로드 시 사용되는 메서드
+    public String uploadImage(MultipartFile file) throws IOException {
+        return uploadFileToS3(file);
+    }
 	
 	private String localLocation = "C:\\Users\\my\\";
 	
-    public String uploadImage(MultipartRequest request) throws IOException {
-        // request 에서 이미지 추출
-    	MultipartFile file = request.getFile("upload");
+    public String uploadFileToS3(MultipartFile file) throws IOException {
         
         // 이름 및 확장자 추출
         String fileName = file.getOriginalFilename();

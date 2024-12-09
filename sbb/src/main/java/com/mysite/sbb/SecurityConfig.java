@@ -36,7 +36,8 @@ public class SecurityConfig {
 					.ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**"))
 					
 					// /image/upload 경로에 대해 CSRF 보호 비활성화
-					.ignoringRequestMatchers(new AntPathRequestMatcher("/image/upload")))  
+					.ignoringRequestMatchers(new AntPathRequestMatcher("/image/upload"))
+					.ignoringRequestMatchers(new AntPathRequestMatcher("/user/**/uploadProfileImage")))
 			.headers((headers) -> headers
 					.addHeaderWriter(new XFrameOptionsHeaderWriter(
 							XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,13 +30,12 @@ public class S3Controller {
     	this.s3Service = s3Service;
     }
     
-   
+    // 글 작성 시 이미지 업로드 
     @PostMapping("/image/upload")
-    @ResponseBody
+    @ResponseBody	// 본문에 바로 이미지를 띄워주기 위함
     public Map<String, Object> uploadFile(MultipartRequest request) throws Exception {
     	
     	Map<String, Object> responseData = new HashMap<>();
-    	
     	
     	try {
 			String s3Url = s3Service.uploadImage(request);
@@ -48,5 +48,16 @@ public class S3Controller {
 			responseData.put("uploaded", false);
 			return responseData;
 		}
+    }
+    
+    // 프로필 이미지 업로드
+    @PostMapping("/profile/upload")
+    public ResponseEntity<Map<String, String>> uploadProfileImage(@RequestParam("file") MultipartFile file) {
+        try {
+            String s3Url = s3Service.uploadImage(file);
+            return ResponseEntity.ok(Map.of("imageUrl", s3Url));
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Upload failed"));
+        }
     }
 }

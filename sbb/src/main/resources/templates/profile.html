@@ -5,10 +5,17 @@
             <div class="col-lg-4">
                 <div class="card mb-4">
                     <div class="card-body text-center">
-						<!--프로필 이미지 설정 부분-->
-                        <img src="/images/스프링부트.png"
-                            alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+						<!--프로필 이미지 설정 부분, S3에서 프로필 이미지를 가져오기 위해 th:src 사용-->
+						<img th:src="${profileImageUrl}" 
+						     alt="avatar" 
+						     class="rounded-circle img-fluid profile-image" 
+						     style="width: 150px; height: 150px;" />
+
                         <h5 class="my-3" th:text="${username}"></h5>
+						<form id="uploadForm">
+						    <input type="file" name="file" id="fileInput">
+						    <button type="submit">사진 변경</button>
+						</form>
                     </div>
                 </div>
             </div>
@@ -103,7 +110,32 @@
     </section>
 </div>
 
-<script layout:fragment="script" type='text/javascript'>
+<script layout:fragment="script" type="text/javascript">
+    document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const fileInput = document.getElementById('fileInput');
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        // 서버에서 전달된 userId를 Thymeleaf 구문으로 JavaScript에 삽입
+        const userId = /*[[${userId}]]*/ 1; // 서버에서 전달된 userId가 정상적으로 출력되는지 확인
+
+        const response = await fetch(`/user/${userId}/uploadProfileImage`, {
+            method: "POST",
+            body: formData
+        });
+
+        if (response.ok) {
+        	const data = await response.json();
+            alert("프로필 사진이 변경되었습니다");
+			// 변경된 이미지 URL을 받아서 img 태그의 src 속성 업데이트
+           	const profileImage = document.querySelector('img[alt="avatar"]');
+           	profileImage.src = data.imageUrl; // 변경된 이미지 URL로 업데이트
+        } else {
+            alert("이미지 업로드에 실패했습니다");
+        }
+    });
 </script>
+
 
 </html>
