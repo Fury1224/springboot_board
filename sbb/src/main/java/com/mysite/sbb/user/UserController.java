@@ -137,18 +137,17 @@ public class UserController {
     }
 	
 	@PreAuthorize("isAuthenticated()")
-	@PostMapping("/{userId}/uploadProfileImage")
-    public ResponseEntity<Map<String, String>> uploadProfileImage(@PathVariable("userId") Long userId, 
+	@PostMapping("/uploadProfileImage")
+    public ResponseEntity<Map<String, String>> uploadProfileImage(Principal principal, 
     		@RequestParam("file") MultipartFile file) {
 		
         try {
-            // S3에 이미지 업로드 후 URL 받기
-            String s3Url = s3Service.uploadImage(file);
-
-            // 해당 유저의 프로필 이미지 URL 업데이트
-            SiteUser user = userService.getUserById(userId); // 유저 조회
-            user.setProfileImageUrl(s3Url); // 프로필 이미지 URL 설정
-            userService.updateProfile(user); // 유저 정보 업데이트
+        	String username = principal.getName();
+    		SiteUser user = userService.getUser(username);
+            
+            String s3Url = s3Service.uploadImage(file);	// S3에 이미지 업로드 후 URL 받기
+            
+            userService.updateProfile(user, s3Url); // 유저 정보 업데이트
             // 성공적으로 업로드된 이미지 URL 반환
             return ResponseEntity.ok(Map.of("imageUrl", s3Url));
         } catch (IOException e) {

@@ -23,6 +23,7 @@ public class UserService {
 		user.setUsername(username);
 		user.setEmail(email);
 		user.setPassword(passwordEncoder.encode(password));
+		user.setProfileImageUrl("https://fury-spring.s3.ap-southeast-2.amazonaws.com/default_user.jpg");
 		this.userRepository.save(user);
 		return user;
 	}
@@ -37,6 +38,7 @@ public class UserService {
 		}
 	}
 	
+	@Transactional
 	public SiteUser getUserById(Long userId) {
 		Optional<SiteUser> siteUser = this.userRepository.findById(userId);
 		if(siteUser.isPresent()) {
@@ -53,9 +55,9 @@ public class UserService {
 		return user;
 	 }
 	
-	public SiteUser updateProfile(SiteUser user) {
-		this.userRepository.save(user);
-		return user;
+	public SiteUser updateProfile(SiteUser user, String image) {
+		user.setProfileImageUrl(image);
+		return userRepository.save(user);
 	 }
 
 	public boolean isMatch(String rawPassword, String encodedPassword) {

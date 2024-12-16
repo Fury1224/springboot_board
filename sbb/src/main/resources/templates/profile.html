@@ -185,11 +185,8 @@
                 const formData = new FormData();
                 formData.append('file', blob, fileName);  // Blob을 파일명 그대로 전송
 
-				// 서버에서 전달된 userId를 Thymeleaf 구문으로 JavaScript에 삽입
-                const userId = /*[[${userId}]]*/ 1; 
-
                 try {
-                    const response = await fetch(`/user/${userId}/uploadProfileImage`, {
+                    const response = await fetch('/user/uploadProfileImage', {
                         method: "POST",
                         body: formData
                     });
